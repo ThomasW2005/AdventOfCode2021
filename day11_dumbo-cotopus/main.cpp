@@ -1,7 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <array>
 #include <algorithm>
 #include <string>
+
 #define SIZE 10
 
 struct octopus
@@ -22,26 +24,24 @@ int step = 0;
 
 int main(int argc, char const *argv[])
 {
-    std::array<std::array<octopus, SIZE>, SIZE> grid{{{8, false, 5, false, 4, false, 8, false, 3, false, 3, false, 5, false, 6, false, 4, false, 4, false},
-                                                      {6, false, 5, false, 7, false, 6, false, 5, false, 2, false, 1, false, 7, false, 8, false, 2, false},
-                                                      {1, false, 2, false, 2, false, 3, false, 6, false, 7, false, 7, false, 7, false, 6, false, 2, false},
-                                                      {1, false, 2, false, 8, false, 4, false, 7, false, 1, false, 3, false, 1, false, 1, false, 3, false},
-                                                      {6, false, 1, false, 2, false, 5, false, 6, false, 5, false, 4, false, 7, false, 7, false, 8, false},
-                                                      {6, false, 4, false, 3, false, 5, false, 7, false, 2, false, 6, false, 8, false, 4, false, 2, false},
-                                                      {5, false, 6, false, 6, false, 4, false, 1, false, 7, false, 5, false, 5, false, 5, false, 6, false},
-                                                      {1, false, 4, false, 4, false, 5, false, 7, false, 3, false, 6, false, 5, false, 5, false, 6, false},
-                                                      {2, false, 2, false, 4, false, 8, false, 4, false, 7, false, 3, false, 5, false, 6, false, 8, false},
-                                                      {6, false, 4, false, 5, false, 1, false, 4, false, 7, false, 3, false, 5, false, 2, false, 6, false}}};
-
-    while (1)
+    // read file into array
+    std::array<std::array<octopus, SIZE>, SIZE> grid{};
+    std::ifstream file("input.txt");
+    std::string line;
+    for (auto &x : grid)
     {
-        evolve(grid);
-        step++;
-        if (isAllZero(grid))
-            break;
+        std::getline(file, line);
+        for (int i = 0; i < line.size(); i++)
+            x[i].energy = line[i] - '0';
     }
-    displayArray(grid);
-    std::cout << "All flashes are gone after " << step << " steps";
+    // puzzle 1:
+    for (int i = 0; i < 100; i++)
+        evolve(grid);
+    std::cout << "total amount of flashes: " << flashes << '\n';
+    // puzzle 2:
+    while (!isAllZero(grid))
+        evolve(grid);
+    std::cout << "amount of steps after which all flashes syncronized: " << step << '\n';
     system("pause");
     return 0;
 }
@@ -70,6 +70,7 @@ void evolve(std::array<std::array<octopus, SIZE>, SIZE> &grid)
         for (int j = 0; j < SIZE; j++)
             incrementEnergy(grid, i, j);
     flashCountToZero(grid);
+    step++;
 }
 
 void incrementEnergy(std::array<std::array<octopus, SIZE>, SIZE> &grid, int i, int j)
